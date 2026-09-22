@@ -6,6 +6,6 @@ services:
     build:
       context: ../
       dockerfile: ./docker/Dockerfile
-    image: sig-service:ubuntu20
+    image: sig-service:latest
     network_mode: host
     restart: unless-stopped

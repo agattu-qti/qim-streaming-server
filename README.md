@@ -64,7 +64,7 @@ Dashboard settings are saved in the browser. Use **Export JSON** and **Import JS
 Save the built image:
 
 ```bash
-docker save -o sig-service.tar sig-service:ubuntu20
+docker save -o sig-service.tar sig-service:latest
 ```
 
 Load and run an existing image:
