@@ -191,6 +191,19 @@
       grid-template-columns: 1fr !important;
       grid-template-rows: 1fr !important;
     }
+    body.video-only.lock-video-ar main {
+      display: grid;
+      place-items: center;
+      background: #000;
+    }
+    body.video-only.lock-video-ar #leftPane {
+      width: min(100%, 177.7778vh);
+      height: min(100%, 56.25vw);
+      aspect-ratio: 16 / 9;
+      align-self: center;
+      justify-self: center;
+      background: #000;
+    }
     body.video-only #rightPane { display: none !important; }
     body.video-only #metaThumb { display: none !important; }
 

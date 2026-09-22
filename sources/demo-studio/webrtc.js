@@ -316,15 +316,24 @@ const engine = WebRTCViewer.create({
       if (handleThumbMessage(obj)) return;
 
       let display = "";
+      const payload = (obj.meta && typeof obj.meta === "object")
+        ? obj.meta
+        : obj;
 
-      if (obj.object_detection && obj.object_detection.length) {
+      if (Array.isArray(payload.text)) {
+        display = payload.text
+          .map((item) => typeof item === "string" ? item : item?.contents)
+          .filter(Boolean)
+          .join("\n");
+      }
 
-        display = obj.object_detection.map((o, i) => {
+      if (!display && payload.object_detection?.length) {
+        display = payload.object_detection.map((o, i) => {
           return `#${i + 1} ${o.label}
           Conf: ${o.confidence.toFixed(1)}%`;
         }).join("\n\n");
 
-        display = `${obj.object_detection.length}\n\n` + display;
+        display = `${payload.object_detection.length}\n\n` + display;
       }
 
       // if (obj.parameters?.timestamp) {
@@ -342,7 +351,8 @@ const engine = WebRTCViewer.create({
 
       // Embedded thumbs (only when enabled and bottom layout)
       if (_thumbEnabled && _metaLayout === "bottom") {
-        const b64 = obj.thumb_jpeg_b64 ?? obj.buffer_base64 ?? null;
+        const b64 = obj.thumb_jpeg_b64 ?? obj.buffer_base64 ??
+          payload.thumb_jpeg_b64 ?? payload.buffer_base64 ?? null;
         setMetaThumbFromBase64(b64);
       }
     },
