@@ -114,8 +114,10 @@
 
     const ws = (p.get('ws') || '').trim();
     const port = (p.get('port') || '').trim();
+    const assetVersion = (p.get('v') || '202609250112').trim();
 
     const metaFont = (p.get('meta_font') || p.get('fontsize') || '').trim();
+    const connectDelayMs = clampInt(p.get('connect_delay_ms') || '500', 0, 5000, 500);
 
     /* ── Top grid (with meta) ───────────────────────────────────────── */
     const topRows = clampInt(p.get('top_rows') || '2', 1, 12, 2);
@@ -149,6 +151,7 @@
     const botBoard = document.getElementById('botBoard');
     const topLabelEl = document.getElementById('topLabel');
     const botLabelEl = document.getElementById('botLabel');
+    const main = document.querySelector('main');
 
     function setGrid(el, rows, cols){
       el.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
@@ -162,6 +165,7 @@
       u.set('thumb', topThumb);
 
       if (metaFont) u.set('meta_font', metaFont);
+      if (assetVersion) u.set('v', assetVersion);
 
       const sender = topIds[idx - 1] || '';
       if (sender) u.set('sender', sender); else u.set('id', String(idx));
@@ -179,6 +183,7 @@
       u.set('videoar', '16:9');
 
       if (metaFont) u.set('meta_font', metaFont);
+      if (assetVersion) u.set('v', assetVersion);
 
       const sender = botIds[idx - 1] || '';
       if (sender) u.set('sender', sender); else u.set('id', String(idx));
@@ -195,13 +200,17 @@
     function build(){
       applyLabels();
 
+      main.style.gridTemplateRows =
+        `auto minmax(0, ${topRows}fr) auto minmax(0, ${botRows}fr)`;
+
       setGrid(topBoard, topRows, topCols);
       topBoard.innerHTML = '';
       const topTotal = topRows * topCols;
+      const pendingFrames = [];
       for (let i = 1; i <= topTotal; i++){
         const f = document.createElement('iframe');
-        f.src = makeTopTileUrl(i);
         topBoard.appendChild(f);
+        pendingFrames.push([f, makeTopTileUrl(i)]);
       }
 
       setGrid(botBoard, botRows, botCols);
@@ -211,10 +220,14 @@
         const wrap = document.createElement('div');
         wrap.className = 'tile tile--16x9';
         const f = document.createElement('iframe');
-        f.src = makeBotTileUrl(i);
         wrap.appendChild(f);
         botBoard.appendChild(wrap);
+        pendingFrames.push([f, makeBotTileUrl(i)]);
       }
+
+      pendingFrames.forEach(([frame, url], index) => {
+        setTimeout(() => { frame.src = url; }, index * connectDelayMs);
+      });
     }
 
     build();
