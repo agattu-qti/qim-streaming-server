@@ -182,6 +182,12 @@
           </div>
           <div class="help">If left empty, split view will show “top” / “bottom”.</div>
         </div>
+
+        <div id="dualDelayBox" class="hidden">
+          <label for="connectDelay">Connect delay (ms)</label>
+          <input id="connectDelay" type="number" min="0" max="5000" step="50" value="500">
+          <div class="help">Delay between opening each stream connection.</div>
+        </div>
       </div>
 
       <div class="actions">
@@ -230,6 +236,8 @@
     const dualLabelsBox = document.getElementById("dualLabelsBox");
     const topLabelInput = document.getElementById("topLabelInput");
     const botLabelInput = document.getElementById("botLabelInput");
+    const dualDelayBox = document.getElementById("dualDelayBox");
+    const connectDelayEl = document.getElementById("connectDelay");
 
     const importBtn = document.getElementById("import");
     const exportBtn = document.getElementById("export");
@@ -396,6 +404,7 @@
       dualBottomIdsBox.classList.toggle("hidden", !isDual);
 
       dualLabelsBox.classList.toggle("hidden", !isDual);
+      dualDelayBox.classList.toggle("hidden", !isDual);
 
       if (!isDual){
         ensureBoxes(idsContainer, outerCount());
@@ -448,7 +457,8 @@
         topLabel: topLabelInput.value.trim(),
         botLabel: botLabelInput.value.trim(),
 
-        metaFont: clamp(document.getElementById("metaFont").value, 8, 48, 12)
+        metaFont: clamp(document.getElementById("metaFont").value, 8, 48, 12),
+        connectDelay: clamp(connectDelayEl.value, 0, 5000, 500)
       };
       try{ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }catch{}
     }
@@ -472,6 +482,7 @@
       botLabelInput.value = (cfg.botLabel ?? "detection");
 
       metaFontEl.value = clamp(cfg.metaFont ?? 12, 8, 48, 12);
+      connectDelayEl.value = clamp(cfg.connectDelay ?? 500, 0, 5000, 500);
 
       sourceTypeEl.value = cfg.sourceType ?? "webrtc";
 
@@ -554,6 +565,7 @@
 
         if (tl !== undefined) p.set("top_label", tl);
         if (bl !== undefined) p.set("bot_label", bl);
+        p.set("connect_delay_ms", String(clamp(connectDelayEl.value, 0, 5000, 500)));
       }
 
       const qs = p.toString();
@@ -583,7 +595,8 @@
         topLabel: topLabelInput.value.trim(),
         botLabel: botLabelInput.value.trim(),
 
-        metaFont: clamp(metaFontEl.value, 8, 48, 12)
+        metaFont: clamp(metaFontEl.value, 8, 48, 12),
+        connectDelay: clamp(connectDelayEl.value, 0, 5000, 500)
       };
     }
 
@@ -657,6 +670,7 @@
       botLabelInput.addEventListener("input", saveDeb);
 
       metaFontEl.addEventListener("input", saveDeb);
+      connectDelayEl.addEventListener("input", saveDeb);
 
       document.getElementById("open").addEventListener("click", async () => {
         saveCfg();

@@ -37,6 +37,19 @@ If your Docker installation uses the legacy Compose command, use:
 docker-compose -f docker/docker-compose.yml up -d --build
 ```
 
+To build an arm64 image from an x86/amd64 host, use Docker Buildx:
+
+```bash
+docker buildx build --platform linux/arm64 --load -t sig-service:latest .
+```
+
+The `--load` option imports the image into the local Docker image store so it
+can be saved and transferred to an arm64 device:
+
+```bash
+docker save -o sig-service.tar sig-service:latest
+```
+
 The service uses host networking and exposes:
 
 - `8080`: dashboard UI and control API
